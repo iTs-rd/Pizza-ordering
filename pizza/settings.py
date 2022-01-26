@@ -1,5 +1,6 @@
 from pathlib import Path
 from config import Config
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,9 +29,26 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'rest_framework',
+    'djoser',
 
     'api',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+
+SIMPLE_JWT = {
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=Config.ACCESS_TOKEN_LIFETIME),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=Config.REFRESH_TOKEN_LIFETIME),
+    'BLACKLIST_AFTER_ROTATION': False,
+    'SIGNING_KEY': Config.JWT_SECRET_KEY,
+}
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
