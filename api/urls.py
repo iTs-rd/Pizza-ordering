@@ -10,20 +10,21 @@ router = routers.DefaultRouter()
 urlpatterns = [
     path('', include(router.urls)),
     path('signup/', Signup),
-    path('orders/', NewOrders),
+    path('orders/', PlaceOrder),
+    path('order_status/', OrderStatus),
 ]
 
 
 # create order  ->  all user  ->  PlaceOrder
-# get order statte of perticular order  ->  user specific  ->  GetOrderStatus
+# get order statte of perticular order  ->  user specific  ->  OrderStatus
+# update-status of order  ->  superuser  ->  OrderStatus
 # get all order by user (sorted)  ->  user specific  ->  GetOrdersDetails
 # get a perticular order details  ->  user specific  ->  OrderDetailByID
 # edit order details  ->  user specific  ->  OrderDetailByID
+# delete order  ->  user specific   ->  OrderDetailByID
 # vier all panding order  ->  superuser  ->  GetAllOrdersDetails
 # view all complete order  ->  superuser  ->  GetAllOrdersDetails
 # view all order group by state  ->  superuser  ->  GetAllOrdersDetails
-# update-status of order  ->  superuser  ->  UpdateOrderStatus
-# delete order  ->  user specific   ->  OrderDetailByID
 # docs  ->  all user  ->  Docs
 # user detail  ->  user specific  ->  GetUserInfo
 

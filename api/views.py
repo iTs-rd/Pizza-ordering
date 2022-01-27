@@ -9,6 +9,26 @@ from config import Config
 from .models import *
 from .serializers import *
 
+def get_id_from_token(token):
+    jwtuser = jwt.decode(token,Config.JWT_SECRET_KEY, algorithms=['HS256'])
+    return jwtuser["user_id"]
+
+def check_for_super_user(token):
+    jwtuser = jwt.decode(token,Config.JWT_SECRET_KEY, algorithms=['HS256'])
+    user = User.objects.get(pk=jwtuser['user_id'])
+    return user.is_superuser
+
+def check_authorization(request, order_user_id):
+    token = request.headers["Authorization"][7:]
+
+    is_super = check_for_super_user(token)
+
+    if is_super:
+        return True
+
+    user_id = get_id_from_token(token)
+    return order_user_id == user_id
+
 
 @api_view(['POST'])
 def Signup(request):
@@ -30,14 +50,9 @@ def Signup(request):
     return Response(response,status=status.HTTP_400_BAD_REQUEST)
 
 
-
-def get_id_from_token(token):
-    user = jwt.decode(token,Config.JWT_SECRET_KEY, algorithms=['HS256'])
-    return user["user_id"]
-
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def NewOrders(request):
+def PlaceOrder(request):
     if request.method == 'POST':
         request.data._mutable = True
         request.data['customer'] = get_id_from_token(request.headers["Authorization"][7:])
@@ -63,4 +78,72 @@ def NewOrders(request):
         return Response(response,status=status.HTTP_400_BAD_REQUEST)
 
 
+@api_view(['GET','PUT'])
+@permission_classes([IsAuthenticated])
+def OrderStatus(request):
+    if request.method == 'GET':
 
+        orderid = request.GET.get('orderid',None)
+
+        if orderid is None:
+            response = {
+                "message" : "Please provide OrderID",
+                "success": False,
+            }
+            return Response(response,status=status.HTTP_400_BAD_REQUEST)
+
+        order = Order.objects.get(pk=orderid)
+        authorized = check_authorization(request, order.customer.id)
+        
+        if not authorized:
+            response = {
+                "message" : "You are not authorized to for this request",
+                "success": False,
+            }
+            return Response(response,status=status.HTTP_401_UNAUTHORIZED)
+            
+        
+        response = {
+            "data" : {
+                "Order Status" : order.status,
+            },
+            "message" : "Retrieve order status successfully",
+            "success": True,
+        }
+        return Response(response,status=status.HTTP_200_OK)
+
+
+    if request.method == 'PUT':
+
+        orderid = request.data.get('orderid', None)
+        order_status = request.data.get('status',None)
+
+        if orderid is None or order_status is None:
+            response = {
+                "message" : "Please provide OrderID and OrderStatus",
+                "success": False,
+            }
+            return Response(response,status=status.HTTP_400_BAD_REQUEST)
+
+        order = Order.objects.get(pk=orderid)
+        authorized = check_authorization(request, order.customer.id)
+
+        if not authorized:
+            response = {
+                "message" : "You are not authorized to for this request",
+                "success": False,
+            }
+            return Response(response,status=status.HTTP_401_UNAUTHORIZED)
+
+        order.status = order_status
+        order.save()
+
+        response = {
+            "data" : {
+                "Order No." : order.id,
+                "Order Status" : order.status,
+            },
+            "message" : "Retrieve order status successfully",
+            "success": True,
+        }
+        return Response(response,status=status.HTTP_200_OK)
