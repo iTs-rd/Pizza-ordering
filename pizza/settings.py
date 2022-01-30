@@ -30,6 +30,7 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'djoser',
+    'drf_yasg',
 
     'api',
 ]
@@ -40,6 +41,15 @@ REST_FRAMEWORK = {
     ),
 }
 
+SWAGGER_SETTINGS = {
+   'SECURITY_DEFINITIONS': {
+      'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+      }
+   }
+}
 
 SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
