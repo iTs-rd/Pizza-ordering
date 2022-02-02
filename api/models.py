@@ -1,5 +1,6 @@
-from django.db import models
 from django.contrib.auth.models import User
+from django.db import models
+
 
 class Order(models.Model):
     customer = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -24,13 +25,11 @@ class Order(models.Model):
         max_length=20, choices=ORDER_SIZE)
 
     quantity = models.IntegerField()
-    flavour=models.CharField(max_length=40,blank=True)
-    placed_at=models.DateTimeField(auto_now_add=True)
-    updated_at=models.DateTimeField(auto_now=True)
+    toppings = models.CharField(max_length=40, blank=True)
+    address = models.CharField(max_length=200)
+    phone_no = models.CharField(max_length=10)
+    placed_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"< OrderID {self.id} by {self.customer} >"
-
-
-    
-
