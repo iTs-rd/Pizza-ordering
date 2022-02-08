@@ -1,0 +1,1 @@
+web: waitress-serve --port=8000 pizza.wsgi:application

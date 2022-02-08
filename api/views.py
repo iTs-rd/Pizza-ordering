@@ -94,19 +94,11 @@ def Orders(request):
         return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET', 'PUT'])
+@api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
-def OrderStatus(request):
+def OrderStatus(request,orderid):
     if request.method == 'GET':
 
-        orderid = request.GET.get('orderid', None)
-
-        if orderid is None:
-            response = {
-                "message": "Please provide orderid.",
-                "success": False,
-            }
-            return Response(response, status=status.HTTP_400_BAD_REQUEST)
         try:
             order = Order.objects.get(pk=orderid)
         except:
@@ -134,9 +126,8 @@ def OrderStatus(request):
         }
         return Response(response, status=status.HTTP_200_OK)
 
-    if request.method == 'PUT':
+    if request.method == 'POST':
 
-        orderid = request.data.get('orderid', None)
         order_status = request.data.get('status', None)
 
         if orderid is None or order_status is None:
@@ -170,7 +161,7 @@ def OrderStatus(request):
         return Response(response, status=status.HTTP_200_OK)
 
 
-@api_view(['GET', 'PUT', 'DELETE'])
+@api_view(['GET', 'POST', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def OrderDetailByID(request, order_id):
     if request.method == 'GET':
@@ -192,7 +183,7 @@ def OrderDetailByID(request, order_id):
         }
         return Response(response, status=status.HTTP_200_OK)
 
-    if request.method == 'PUT':
+    if request.method == 'POST':
         order = Order.objects.get(pk=order_id)
         authorized = check_authorization(request, order.customer.id)
         if not authorized:
